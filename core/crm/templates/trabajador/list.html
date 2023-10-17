@@ -1,0 +1,24 @@
+{% extends 'list.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block head_list %}
+    <script src="{% static 'trabajador/js/list.js' %}"></script>
+{% endblock %}
+
+{% block columnas %}
+    <tr>
+        <th scope="col" style="width: 5%;">#</th>
+        <th scope="col" style="width: 10%;">Nombres</th>
+        <th scope="col" style="width: 10%;">Apellidos</th>
+        <th scope="col" style="width: 5%;">Edad</th>
+        <th scope="col" style="width: 15%;">Dirección</th>
+        <th scope="col" style="width: 15%;">Correo</th>
+        <th scope="col" style="width: 15%;">Curriculum Vitae</th>
+        <th scope="col" style="width: 10%;">Sede</th>
+        <th scope="col" style="width: 15%;">Opciones</th>
+    </tr>
+{% endblock %}
+
+{% block javascript %}
+    
+{% endblock %}

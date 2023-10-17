@@ -1,0 +1,168 @@
+{% extends 'layout.html' %} {% load widget_tweaks %} {% load static %} 
+{% block head %}
+<link
+  rel="stylesheet"
+  href="{% static 'libs/select2-4.1.0/css/select2.min.css' %}"
+/>
+<link
+  rel="stylesheet"
+  href="{% static 'libs/select2-4.1.0/css/select2-bootstrap4.min.css' %}"
+/>
+{% comment %} Scripts {% endcomment %}
+<script src="{% static 'libs/select2-4.1.0/js/select2.min.js' %}"></script>
+<!--Para los lenguajes-->
+<script src="{% static 'libs/select2-4.1.0/js/i18n/es.js' %}"></script>
+
+{% comment %} Autocomplee  {% endcomment %}
+<link rel="stylesheet" href="{% static 'libs/jquery-ui-1.12.1/jquery-ui.min.css' %}">
+<script src="{% static 'libs/jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+{% endblock head %} {% block content %}
+<form method="post" enctype="multipart/form-data">
+  <div class="card card-default">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="fas fa-plus"></i>
+        {{title}}
+      </h3>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label for="">Categorias:</label>
+        {{form.categories}} {% comment %} Pongo el input que cree {% endcomment %}
+      </div>
+      <div class="form-group">
+        <label for="">Productos:</label>
+        {{form.products}}
+      </div>
+      <div class="form-group">
+        <label for="">Buscador:</label>
+        {{form.search}}
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock content %} 
+{% block js %}
+<script>
+  //que apenas cargue la pagina se ejecuta esta funcion
+  $(function () {
+    //lo pongo aqui porque lo voy a utilizar en todo el code
+    let select_products = $('select[name="products"]'); //obtengo el select de product para ponerle los productos
+    $(".select2").select2({
+      //asi le pongo el estilo y js de select2
+      theme: "bootstrap4", //el tema
+      language: "es", //lenguaje
+    });
+
+    //selecciono el select por nu name y accedo a su eveento change que es cuando se selecciona un valor
+    $('select[name="categories"]').on('change',function (){
+      let id = $(this).val(); //obtengo el id del value
+      let options = '<option value="">---------</option>'; //voy a crear el componente para incrustar en el product
+      if (id === "") {
+        //que si el id esta vacio, osea no ha seleccionado nada, entonces no haga la petición porque eso seria un error en el servidor, entonces solo le paso la opción vacia y con el return detengo la ejecución para que no pase al ajax
+        select_products.html(options);
+        return false;
+      }
+      $.ajax({
+        url: window.location.pathname,
+        type: "POST",
+        data: {
+          action: "search_product_id",
+          id: id,
+        },
+        dataType: "json",
+      })
+        .done(function (data) {
+          if (!data.hasOwnProperty("error")) {
+            //ya no recorro y pongo los valores manualmente, sino que le paso los datos al select de los productos con select2, selecciono el select y le aplico la función de select2 y en el data le paso lo que me llegue de la vista, la cual esta en un arreglo, con diccionarios, con su id y nombre, pero el nombre se llama "text" la clave porque asi lo pide el plugin, [{"id":0,"text":'Nombre'},{"id":1,"text":'Nombre 2'}] y asi
+            select_products.html("").select2({
+              //le pongo html('') para que se limpie cada vez que cambie la selección
+              theme: "bootstrap4",
+              language: "es",
+              data: data,
+            });
+
+            //el $.each recorro cada valor del arreglo que le mande desde la vista, y en value va a estar el diccionario de cada uno, el key solo va a contener la posiccion del arreglo
+            /*$.each(data,function(key,value){
+                  //console.log(`key:${key}, value:${value}`)
+                  options+=`<option value="${value.id}">${value.name}</option>`
+                })*/
+            return false;
+          }
+          message_error(data.error);
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) {
+          alert(`${textStatus} : ${errorThrown}`);
+        })
+        .always(function (data) {
+          //ya no le pongo esto porque ya no le voy a incrustar las opciones yo
+          //select_products.html(options); //en el always que se ejecuta siempre, le mando las opciones que cree segun los valores que recibi
+        });
+    });
+    select_products.on("change", function () {
+      var value = select_products.select2("data")[0]; //aqui le digo que cuando seleccione un valor de productos, de los resultados que haya, imprima la data de ese valor
+      console.log(value);
+    });
+    //input buscador
+    var availableTags = [
+      "ActionScript",
+      "AppleScript",
+      "Asp",
+      "BASIC",
+      "C",
+      "C++",
+      "Clojure",
+      "COBOL",
+      "ColdFusion",
+      "Erlang",
+      "Fortran",
+      "Groovy",
+      "Haskell",
+      "Java",
+      "JavaScript",
+      "Lisp",
+      "Perl",
+      "PHP",
+      "Python",
+      "Ruby",
+      "Scala",
+      "Scheme"
+    ];
+    $('input[name="search"]' ).autocomplete({
+      //datos para filtrar busqueda,puede recibir un array o una funcion para peticiones ajax
+      //source: availableTags,
+      source: function(request,response){
+        $.ajax({
+          //la peticion a esta vista
+            url: window.location.pathname, 
+            type: "POST",
+            data: {
+              'action':'autocomplete',
+              //el request.term es el valor que la persona esta escribiendo en el momento
+              "term":request.term
+            }, 
+            dataType: "json",
+          })
+            .done(function (data) {
+              //para que lo obtenga cuando lo seleccione en el select:function(){}
+              response(data)
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+              //alert(`${textStatus} : ${errorThrown}`);
+            })
+            .always(function () {
+            });
+      },
+      //realizar la busqueda cada 500 mls
+      delay:500,
+      //cantidad de caracteres para iniciar la busqueda
+      minLength: 3,
+      //funcion cuando se selecciona un valor
+      select: function(event,ui){
+        //el ui es un dic con la info del valor seleccionado
+        console.log(ui.item)
+      }
+    });
+  });
+</script>
+{% endblock js %}

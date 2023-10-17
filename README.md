@@ -1,1 +1,1 @@
-# proyecto_django
+# jose_alanya_admin

@@ -1,0 +1,79 @@
+{% extends 'layout.html' %} {% load widget_tweaks %} {% block content %}
+<form method="post">
+  <div class="card card-default">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="fas fa-trash"></i>
+        {{title}}
+      </h3>
+    </div>
+    <div class="card-body">
+      {% csrf_token %} {% comment %} este input lo pongo para saber
+      que accion va a hacer este formularioy le paso la accion que le pase en el
+      get_context_data {% endcomment %}
+      <input type="hidden" name="action" value="{{action}}" />
+      {% if form.errors %}
+      <div class="alert alert-danger alert-dismissible">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="alert"
+          aria-hidden="true"
+        >
+          ×
+        </button>
+        <h5>
+          <i class="icon fas fa-ban"></i> Ha ocurrido un error al querer guardar
+          el registro
+        </h5>
+        <ul>
+          {% comment %} Recorro mis componentes {% endcomment %} {% for field in form %} 
+          {% comment %} recorro cada field para mirar si tiene erroes e
+          imprimirlos {% endcomment %} {% for error in field.errors %}
+          <li>{{error}}</li>
+          {% endfor %} {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      
+      <div class="alert alert-danger alert-dismissible">
+                  <h5><i class="icon fas fa-ban"></i> ¡Notificación!</h5>
+                  {% comment %} En el object esta el registro actual, el cual se quiere eliminar {% endcomment %}
+                  ¿Estas seguro de eliminar el registro Nro {{object.id}}?
+                </div>
+      <div class="cad-footer">
+        <button type="submit" class="btn btn-primary" id="btnTest">
+          <i class="fas fa-save"></i>
+          Si, aceptar
+        </button>
+        <a href="{{list_url}}" type="submit" class="btn btn-info" id="btnTest">
+          <i class="fas fa-times"></i>
+          Cancelar
+        </a>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock content %}
+{% block js %}
+<script>
+  {% comment %} Puedo no mandarle parametros, ya que solo lo va a borrar, pero al no mandarle parametros, no recibe el token, entonces si quiero hacerlo sin mandar parametor, entonces le pongo el decorador csfr_exempt al dispatch para que no lo necesite {% endcomment %}
+  $('form').on('submit', function (e){
+    //detengo el envio, porque lo hare por ajax
+      e.preventDefault();
+      //obtengo los valores del form y lo convierto a diccionario
+      //var parameters = $(this).serializeArray();
+      var parameters = new FormData(this); 
+      //console.log(parameters)
+      //utilizo mi funcion para confirmar
+      submit_with_ajax(window.location.pathname,
+        'Eliminar',
+        `¿Desea realizar esta acción?`, 
+        parameters, 
+        function (){
+          location.href = '{{list_url}}'
+        });
+    })
+</script>
+
+{% endblock js %}

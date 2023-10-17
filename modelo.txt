@@ -1,0 +1,34 @@
+empresa:
+id
+nombre
+
+sede:
+id
+nombre
+empresa_id
+
+trabajador:
+id
+nombres
+apellidos
+edad
+direccion
+correo
+curroculum_vitae
+sede_id (en django sede)
+
+usuario:
+aparte de los atributos que ya tiene, agrego:
+email (unico, pq en django ya esta pero no es unico)
+sede_id (en django sede) puede ser null
+empresa_id (en django empresa) puede ser null
+
+
+relaciones:
+Si el usuario tiene una empresa relacionada, puede ver todas las sedes y los trabajadores de las sedes
+los permisos son de ver el crud de las sedes, el crud de los trabajadores, crud de productos y categorias, y crud de los usuarios pero solo los que son de las sedes que pertenecen a la empresa de el
+
+Si el usuario tiene una sede relacionada, puede ver solo los trabajadores de esa sede
+Lo permisos son de ver el crud de trabajadores solo de esa sede, no entrara en el crud de sedes ni empresa, ni categoria, ni productos.
+
+Si es el super usuario puede ver todos los cruds, y es el que crea una empresa y le asigna un usuario para que administre las sedes de ella.

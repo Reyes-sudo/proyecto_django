@@ -1,0 +1,110 @@
+{% extends 'layout.html' %} {% load widget_tweaks %} {% block content %}
+{% comment %} Para el envio de archivos se pone ese atributo al form {% endcomment %}
+<form method="post" enctype="multipart/form-data"> 
+  <div class="card card-default">
+    <div class="card-header">
+      <h3 class="card-title">
+        {% comment %} Nota, no debo poner action=='add', sino con su respectivo
+        espacio action == 'add' {% endcomment %} {% if action == 'add' %}
+        <i class="fas fa-plus"></i>
+        {% else %}
+        <i class="fas fa-edit"></i>
+        {% endif %} {{title}}
+      </h3>
+    </div>
+    <div class="card-body">
+      {% if form.errors %}
+      <div class="alert alert-danger alert-dismissible">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="alert"
+          aria-hidden="true"
+        >
+          ×
+        </button>
+        <h5>
+          <i class="icon fas fa-ban"></i> Ha ocurrido un error al querer guardar
+          el registro
+        </h5>
+        <ul>
+          {% comment %} Recorro mis componentes {% endcomment %} 
+          {% for field in form %} 
+          {% comment %} recorro cada field para mirar si tiene erroes e
+          imprimirlos {% endcomment %} {% for error in field.errors %}
+          <li>{{error}}</li>
+          {% endfor %} {% endfor %}
+        </ul>
+      </div>
+      {% endif %} {% csrf_token %} {% comment %} este input lo pongo para saber
+      que accion va a hacer este formularioy le paso la accion que le pase en el
+      get_context_data {% endcomment %}
+      <input type="hidden" name="action" value="{{action}}" />
+      {% for field in form.visible_fields %}
+      <div class="form-group">
+        <label for="">{{field.label}}:</label>
+        {{field|add_class:'form-control'|attr:'autocomplete:off'|attr:'autofocus'}}
+      </div>
+      {% endfor %}
+
+      <div class="cad-footer">
+        <button type="submit" class="btn btn-primary" id="btnTest">
+          <i class="fas fa-save"></i>
+          Guardar registro
+        </button>
+        <a href="{{ list_url }}" class="btn btn-danger">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock content %} {% block js %}
+<script>
+      {% if form.errors %}
+        let errors = '';
+        {% for field in form %}
+          {% for error in field.errors %}
+            errors += '{{error}}\n';
+          {% endfor %}
+        {% endfor %}
+        //para controlar este tipo de errores
+        {% comment %} de esta forma pongo los errores que no son de mis componentes, ya no seria form.errors {% endcomment %}
+        {% for error in form.non_field_errors %}
+        errors += '{{error}}\n';
+        {% endfor %}
+        Swal.fire({
+        title:'!Error¡',
+        text:errors,
+        icon:'error'
+        })
+      {% endif %}
+      $('form').on('submit', function (e){
+        //para que no se ejecute el envio del form
+        e.preventDefault();
+        //esto es jquery, y el this hace referencia al formulario, y con esa funcion, obtengo los datos en forma de diccionario para poder pasarlos en el data
+
+        //var parameters = $(this).serializeArray();
+
+        var parameters = new FormData(this);// de esta forma recibe los datos tipo texto y tipo files, y le paso como parametro el formulario la cual el this hace referencia a el
+        
+        //ver valores del formulario
+        /*parameters.forEach(function (value,key){ //como es un diccionario, con el forEach recorro cada valor y su key y lo imprimo para ver
+          console.log(key+" "+value)
+        })*/
+        // console.log(parameters);
+        //le paso la url, lo parametros y la función a realizar si fue correcta la petición
+        //le pasamos el titulo y contenido también
+
+        submit_with_ajax(window.location.pathname,
+        'Guardar',
+        `¿Quiere realizar esta accion?`, 
+        parameters, 
+        function (){
+          location.href = '{{list_url}}'
+        });
+      })
+
+      
+</script>
+{% endblock js %}

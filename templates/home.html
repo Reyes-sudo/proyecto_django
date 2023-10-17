@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{title}}</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
+    />
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="{% static 'libs/adminlte-3.2/plugins/fontawesome-free/css/all.min.css' %}"
+    />
+    <!-- Theme style -->
+    <link
+      rel="stylesheet"
+      href="{% static 'libs/adminlte-3.2/css/adminlte.min.css' %}"
+    />
+     <!-- REQUIRED SCRIPTS -->
+
+    <!-- jQuery -->
+    <script src="{% static 'libs/adminlte-3.2/plugins/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'libs/bootstrap-5.3/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- AdminLTE App -->
+  <script src="{% static 'libs/adminlte-3.2/js/adminlte.min.js' %}"></script>
+  <!--Alerts sweetalert2-->
+  <script src="{% static 'libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+  <!--Jquery confirm-->
+  <link rel="stylesheet" href="{% static 'libs/jquery-confirm-v3.3.4/jquery-confirm.min.css' %}">
+  <script src="{% static 'libs/jquery-confirm-v3.3.4/jquery-confirm.min.js' %}"></script>
+  <!--mis js-->
+  <script src="{% static 'js/functions.js' %}"></script>
+  <!--Bloque para librerias-->
+  {% comment %} Aqui cree el head, y tengo que pasarlo al que lo va a heredar que es el body {% endcomment %}
+  {% block head %}
+  {% endblock head %}
+  </head>
+    {% block body %}
+    
+    {% endblock body %}
+</html>
